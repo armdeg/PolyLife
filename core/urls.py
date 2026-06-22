@@ -6,11 +6,12 @@ app_name = "core"
 
 urlpatterns = [
     path("health/", views.health, name="health"),
+    path("microservices/", views.microservices, name="microservices"),
 
-    # Authentication
-    path("auth/signup/", auth_views.signup, name="signup"),
-    path("auth/login/", auth_views.login, name="login"),
-    path("auth/refresh/", auth_views.refresh, name="refresh"),
-    path("auth/logout/", auth_views.logout, name="logout"),
-    path("auth/me/", auth_views.me, name="me"),
+    # Authentication. Paths match the frontend contract exactly (no trailing
+    # slash) so POST requests are not affected by APPEND_SLASH redirects.
+    path("register", auth_views.register, name="register"),
+    path("login", auth_views.login, name="login"),
+    path("user", auth_views.user, name="user"),
+    path("logout", auth_views.logout, name="logout"),
 ]

@@ -9,7 +9,7 @@ User = get_user_model()
 
 class JwtUtilsTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(email="a@example.com", password="x")
+        self.user = User.objects.create_user(username="ali", password="x")
 
     def test_access_token_has_expected_claims(self):
         token = jwt_utils.make_access_token(self.user)

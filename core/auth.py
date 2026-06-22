@@ -3,8 +3,8 @@ Request-level authentication helpers.
 
 `resolve_user` turns an incoming request into the authenticated user by reading
 the access token from either the `access_token` cookie or an
-`Authorization: Bearer <token>` header. The JWT middleware (added later) reuses
-the same helper, so the auth logic lives in exactly one place.
+`Authorization: Bearer <token>` header. The JWT middleware reuses the same
+helper, so the auth logic lives in exactly one place.
 """
 
 from functools import wraps
@@ -57,7 +57,9 @@ def api_login_required(view_func):
     def _wrapped(request, *args, **kwargs):
         user = getattr(request, "user", None)
         if user is None or not user.is_authenticated:
-            return JsonResponse({"detail": "Authentication required"}, status=401)
+            return JsonResponse(
+                {"success": False, "message": "احراز هویت لازم است"}, status=401
+            )
         return view_func(request, *args, **kwargs)
 
     return _wrapped

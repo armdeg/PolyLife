@@ -29,6 +29,10 @@ DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
+# Team microservices mounted by the core. Empty until teams are implemented;
+# the /api/microservices endpoint then falls back to decoy placeholders.
+TEAM_APPS = env.list("TEAM_APPS", default=[])
+
 
 # Application definition
 
@@ -46,6 +50,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -105,6 +110,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Built frontend (Vite SPA). When `frontend/dist` exists (e.g. built inside
+# Docker), WhiteNoise serves its assets from the site root and the home view
+# returns its index.html. Otherwise the home view shows a fallback page.
+FRONTEND_DIST = BASE_DIR / "frontend" / "dist"
+FRONTEND_BUILT = (FRONTEND_DIST / "index.html").exists()
+if FRONTEND_BUILT:
+    WHITENOISE_ROOT = FRONTEND_DIST
+    WHITENOISE_INDEX_FILE = True
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

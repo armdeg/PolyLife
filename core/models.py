@@ -1,5 +1,3 @@
-import uuid
-
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -10,20 +8,19 @@ from django.utils import timezone
 
 
 class UserManager(BaseUserManager):
-    """Manager for the email-based custom user model."""
+    """Manager for the username-based custom user model."""
 
     use_in_migrations = True
 
-    def create_user(self, email, password=None, **extra_fields):
-        if not email:
-            raise ValueError("Email is required")
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+    def create_user(self, username, password=None, **extra_fields):
+        if not username:
+            raise ValueError("Username is required")
+        user = self.model(username=username, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
+    def create_superuser(self, username, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
@@ -33,25 +30,22 @@ class UserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
 
-        return self.create_user(email=email, password=password, **extra_fields)
+        return self.create_user(username=username, password=password, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
     """
-    Email-based user, shared across the core and every team app.
+    Username-based user, shared across the core and every team app.
 
-    The model is intentionally minimal: domain-specific profile data belongs
-    in each team's own app and database, not in the shared core user.
+    Identity is the (unique) username. The numeric primary key is exposed to
+    clients as `user.id`.
     """
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
-    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=150, unique=True)
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
 
-    # Incremented on logout to invalidate previously issued refresh tokens.
-    # Used by the JWT layer (added in a later step).
+    # Incremented on logout to invalidate previously issued tokens.
     token_version = models.PositiveIntegerField(default=0)
 
     is_active = models.BooleanField(default=True)
@@ -60,8 +54,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    USERNAME_FIELD = "email"
+    USERNAME_FIELD = "username"
     REQUIRED_FIELDS = []
 
     def __str__(self):
-        return self.email
+        return self.username

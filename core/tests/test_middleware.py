@@ -11,7 +11,7 @@ User = get_user_model()
 class JWTMiddlewareTests(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.user = User.objects.create_user(email="a@example.com", password="x")
+        self.user = User.objects.create_user(username="ali", password="x")
         self.middleware = JWTAuthenticationMiddleware(lambda request: None)
 
     def _process(self, request):
