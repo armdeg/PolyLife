@@ -6,9 +6,7 @@ class HomeViewTests(TestCase):
         resp = self.client.get("/")
 
         self.assertEqual(resp.status_code, 200)
-        # The title value in frontend/bas.html is equal to "poly-life-core"
-        # self.assertContains(resp, "PolyLife")
-        self.assertContains(resp, "poly-life-core")
+        self.assertContains(resp, "PolyLife")
 
     def test_client_side_route_is_caught_by_spa(self):
         # Unknown (non-API) paths fall through to the SPA catch-all, so a
